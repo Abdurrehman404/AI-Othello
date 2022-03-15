@@ -1,22 +1,40 @@
+from functools import partial
 from tkinter import *
+import Othelo as ot
 
-def MakeCellAlive(List,Grid,x,y):
-    List[x][y] = 1
+def click(x, y):
+    print(x)
+    print(y)
+    try:
+       obj = Grid.grid_slaves(x, y)
+       obj = obj[0]
+       print(obj)
+       obj.configure(background='#01ac6f')
 
-def MakeAGrid(List,Grid,X,Y):
-    x=0
-    y=0
+    except Exception as e:
+        print(str(e))
 
-    while ( x != X ):
-        while( y != Y ):
+def MakeCellAlive(event):
+    print('Event fired')
+    x = event.x_root - Grid.winfo_rootx()
+    print(Grid.grid_size())
+
+
+def MakeAGrid(Grid, X, Y):
+    x = 0
+    y = 0
+
+    while x != X :
+        while y != Y :
             Button(
             Grid,
             width = 7,
             height = 3,
-            activebackground ='#03fc6f',
             background='#03fc6f',
-            command = MakeCellAlive(List,Grid,x,y)
-            ).grid( row = x, column = y , padx = 2 , pady = 2 )
+            command=partial(click,x,y)
+            ).grid(row = x, column = y, padx = 2, pady = 2)
+            #btn.bind('<Button>', MakeCellAlive)
+
             y = y + 1
         x = x + 1
         y = 0
@@ -32,4 +50,8 @@ if __name__ == '__main__':
     Grid.title('Othelo')
     Grid.geometry('505x480')
     Grid.config(bg='#073570')
-    MakeAGrid(flag, Grid, 8, 8)
+    MakeAGrid(Grid, 8, 8)
+
+    game1 = ot.Othelo()
+
+
