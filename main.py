@@ -2,14 +2,19 @@ from functools import partial
 from tkinter import *
 import Othelo as ot
 
+game = ot.Othelo()
+
 def click(x, y):
     print(x)
     print(y)
     try:
-       obj = Grid.grid_slaves(x, y)
-       obj = obj[0]
-       print(obj)
-       obj.configure(background='#01ac6f')
+        if game.InitialBoard.SanityChecks(x, y, game.turn):
+            game.MakeMove(x, y)
+            obj = Grid.grid_slaves(x, y)
+            obj = obj[0]
+            obj.configure(background='#000000' if game.turn == 'H' else '#ffffff')
+            print(game.InitialBoard.Board)
+            game.ToggleTurn()
 
     except Exception as e:
         print(str(e))
@@ -30,9 +35,11 @@ def MakeAGrid(Grid, X, Y):
             Grid,
             width = 7,
             height = 3,
-            background='#03fc6f',
-            command=partial(click,x,y)
-            ).grid(row = x, column = y, padx = 2, pady = 2)
+            background = '#ffffff' if game.InitialBoard.Board[x][y] == 'C' else '#000000' if game.InitialBoard.Board[x][y] == 'H' else '#32d16f',
+            command=partial(click, x, y),
+            activebackground='#32d16f',
+            borderwidth=0,
+            ).grid(row = x, column = y, padx = 0.5, pady = 0.5)
             #btn.bind('<Button>', MakeCellAlive)
 
             y = y + 1
@@ -41,17 +48,16 @@ def MakeAGrid(Grid, X, Y):
 
     Grid.mainloop()
 
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     
     flag = [[0] * 8] * 8
     Grid = Tk()
     Grid.title('Othelo')
-    Grid.geometry('505x480')
+    Grid.geometry('458x435')
     Grid.config(bg='#073570')
     MakeAGrid(Grid, 8, 8)
 
-    game1 = ot.Othelo()
+    print(game.InitialBoard.Board)
+
 
 
