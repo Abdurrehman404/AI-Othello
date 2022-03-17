@@ -1,11 +1,10 @@
 
 class State:
     def __init__(self):
-        self.Board[3][3] = 'H'
-        self.Board[3][4] = 'C'
-        self.Board[4][3] = 'C'
-        self.Board[4][4] = 'H'
-        self.Board[5][2] = 'H'
+        self.Board[3][3] = 'C'
+        self.Board[3][4] = 'H'
+        self.Board[4][3] = 'H'
+        self.Board[4][4] = 'C'
 
     Board = [['' for i in range(8)]for j in range(8)]
 
@@ -76,17 +75,78 @@ class State:
 class Othelo:
 
     def __init__(self):
-        self.turn = 'C'
+        self.Turn = 'H'
 
-    turn = 'C'  # H for Human, C for Computer
+    Turn = 'H'  # H for Human, C for Computer
     InitialBoard = State()
 
     def MinMax(self):
         pass
 
     def ToggleTurn(self):
-        self.turn = 'C' if self.turn == 'H' else 'H'
+        self.Turn = 'C' if self.Turn == 'H' else 'H'
 
     def MakeMove(self, x, y):
-        self.InitialBoard.Board[x][y] = self.turn
+        self.InitialBoard.Board[x][y] = self.Turn
+
+    def FlipCells(self, row, col):
+        OpponentPiece = 'H' if self.Turn == 'C' else 'C'  # that sprite that is inbetween the turn's Piece
+
+        self.AllMoves(Start=col - 1, x=row, y=col - 1, XIncr=0, YIncr=-1, Step=-1, Range=0, Turn=self.Turn,
+                      OpponentPiece=OpponentPiece)  # Left Horizontal
+        self.AllMoves(Start=col + 1, x=row, y=col + 1, XIncr=0, YIncr=1, Step=1, Range=8, Turn=self.Turn,
+                      OpponentPiece=OpponentPiece)  # Right Horizontal
+        self.AllMoves(Start=row - 1, x=row - 1, y=col, XIncr=-1, YIncr=0, Step=-1, Range=0, Turn=self.Turn,
+                      OpponentPiece=OpponentPiece)  # Up Vertical
+        self.AllMoves(Start=row + 1, x=row + 1, y=col, XIncr=1, YIncr=0, Step=1, Range=8, Turn=self.Turn,
+                      OpponentPiece=OpponentPiece)  # Down Vertical
+        self.AllMoves(Start=col + 1, x=row - 1, y=col + 1, XIncr=-1, YIncr=1, Step=1, Range=8, Turn=self.Turn,
+                      OpponentPiece=OpponentPiece)  # Top Right Diagonal
+        self.AllMoves(Start=col + 1, x=row - 1, y=col - 1, XIncr=-1, YIncr=-1, Step=-1, Range=0, Turn=self.Turn,
+                      OpponentPiece=OpponentPiece)  # Top Left Diagonal
+        self.AllMoves(Start=col + 1, x=row + 1, y=col + 1, XIncr=1, YIncr=1, Step=1, Range=8, Turn=self.Turn,
+                      OpponentPiece=OpponentPiece)  # Bottom Right Diagonal
+        self.AllMoves(Start=col - 1, x=row + 1, y=col - 1, XIncr=1, YIncr=-1, Step=-1, Range=0, Turn=self.Turn,
+                      OpponentPiece=OpponentPiece)  # Bottom Left Diagonal  # Down Vertical
+
+
+    def AllMoves(self, Start, x, y, XIncr, YIncr, Step, Range, Turn, OpponentPiece):
+        sandwich = False
+        if (x > 7 or y > 7) or (x < 0 or y < 0):
+            return False
+        TempX = x
+        TempY = y
+
+        for i in range(Start, Range, Step):
+            if (self.InitialBoard.Board[x][y] == '') or (self.InitialBoard.Board[x][y] == Turn and sandwich is False):
+                return False
+            if self.InitialBoard.Board[x][y] == OpponentPiece and sandwich is False:
+                sandwich = True  # something fishy
+            if self.InitialBoard.Board[x][y] == Turn and sandwich is True:
+                for j in range(Start, Range, Step):
+                    if x == TempX and y == TempY:
+                        return True
+                    self.InitialBoard.Board[TempX][TempY] = Turn
+                    TempX += XIncr
+                    TempY += YIncr
+
+                return True
+
+            x += XIncr
+            y += YIncr
+
+    def PrintState(self):
+        for i in range(0, 8):
+            print(self.InitialBoard.Board[i])
+
+        print('-------------------------------')
+
+    def GetCount(self, Piece):
+        count = 0
+        for i in range(8):
+            for j in range(8):
+                if self.InitialBoard.Board[i][j] == Piece:
+                    count += 1
+
+        return count
 
