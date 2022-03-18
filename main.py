@@ -1,26 +1,41 @@
+import time
 from functools import partial
 from tkinter import *
 import Othello as ot
 
-game = ot.Othelo()
+game = ot.Othello()
 
 def click(x, y):
     print(x)
     print(y)
     try:
-        if game.InitialBoard.SanityChecks(x, y, game.Turn):
-            game.MakeMove(x, y)
-            game.PrintState()
-            game.FlipCells(x, y)
-            UpdateBoard()
-            game.PrintState()
-            BlackCount.configure(text=game.GetCount('H'))
-            WhiteCount.configure(text=game.GetCount('C'))
-            game.ToggleTurn()
-            TurnLabel.configure(text='Computer(White)' if game.Turn == 'C' else 'Human(Black)',
-                                background='#ffffff' if game.Turn == 'C' else '#000000')
-            TurnLabel.update()
+        if game.InLoop is True:
+            if game.InitialBoard.SanityChecks(x, y, game.Turn):
+                game.MakeMove(x, y)
+                game.InitialBoard.PrintState()
+                game.InitialBoard.FlipCells(x, y, game.Turn)
+                UpdateBoard()
+                game.InitialBoard.PrintState()
+                BlackCount.configure(text=game.GetCount('H'))
+                WhiteCount.configure(text=game.GetCount('C'))
 
+                if game.GetCount('H') + game.GetCount('C') == 64:
+                    TurnLabel.configure(text='GameEnded')
+
+                game.ToggleTurn()
+                TurnLabel.configure(text='Computer(White)' if game.Turn == 'C' else 'Human(Black)',
+                                    background='#ffffff' if game.Turn == 'C' else '#000000')
+
+                if game.ComputerTurn():
+                    game.ToggleTurn()
+                    UpdateBoard()
+                    TurnLabel.configure(text='Computer(White)' if game.Turn == 'C' else 'Human(Black)',
+                                        background='#ffffff' if game.Turn == 'C' else '#000000')
+
+                    BlackCount.configure(text=game.GetCount('H'))
+                    WhiteCount.configure(text=game.GetCount('C'))
+        else:
+            WinOrLose.configure(text='GameEnded')
     except Exception as e:
         print(str(e))
 
@@ -103,6 +118,18 @@ if __name__ == '__main__':
     )
     WhiteCount.grid(row=8, column=5, padx=0, pady=10, rowspan=3, columnspan=3)
 
+    WinOrLose = Label(
+        Grid,
+        width=10,
+        height=2,
+        background='#073570',
+        activebackground='#32d16f',
+        borderwidth=0,
+        foreground='#ffffff',
+        text='Game Ended' if game.InLoop is False else 'onGoing',
+        font=10,
+    )
+    WinOrLose.grid(row=8, column=3, padx=0, pady=10, rowspan=3, columnspan=2)
 
     Grid.title('Othello')
     Grid.geometry('458x490')
